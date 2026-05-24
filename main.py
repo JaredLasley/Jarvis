@@ -4,12 +4,13 @@ from google import genai
 import argparse
 from google.genai import types
 from prompts import system_prompt
-from call_function import available_functions
+from call_function import available_functions, call_function
 def main ():
 	#creating the parsers to parse the user input and --verbose tag
 	parser = argparse.ArgumentParser(description="AiAgent")
 	parser.add_argument("user_prompt", type=str, help="User input prompt")
 	parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+	#this object contins all of the args entered by the user into the terminal
 	args = parser.parse_args()
 	#stores a list of the user messagges
 	messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
@@ -41,10 +42,26 @@ def main ():
 		print("Response:")
 		print(query.text)
 	else:
-		for function_call in query.function_calls:
-			print(f"Calling function: {function_call.name}({function_call.args})")	
+		function_responses = []
+		for call in query.function_calls:
+			function_call_result = call_function(call,args.verbose)
+			if not function_call_result.parts:
+				raise Exception("call_function return object is empty")
+			if not function_call_result.parts[0].function_response:
+				raise Exception("fucntion response list is empty")
+			if not function_call_result.parts[0].function_response.response:
+				raise Exception("functio response attribute is empty ")
 	
+			function_responses.append(function_call_result.parts[0])
+			if args.verbose:
+				print(f"-> {function_call_result.parts[0].function_response.response}")
 
 
 if __name__ == "__main__":
     main()
+
+
+
+#vestigial code for printing the function names and args before the implementation of call_function formula
+#for function_call in query.function_calls:
+#			print(f"Calling function: {function_call.name}({function_call.args})")	
