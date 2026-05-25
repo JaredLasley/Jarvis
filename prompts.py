@@ -1,6 +1,7 @@
 system_prompt = """
 You are a helpful AI coding agent.
 
+Go find the code on your own using the tools provided. Do not ask me to provide the code.
 When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
 
 - List files and directories
